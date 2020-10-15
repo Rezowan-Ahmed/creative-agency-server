@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
-    const productCollection = client.db("creativeAgency").collection("products");
+    const adminCollection = client.db("creativeAgency").collection("admin");
     const feedbackCollection = client.db("creativeAgency").collection("feedback");
     const orderCollection = client.db("creativeAgency").collection("orders");
     const servicesCollection = client.db("creativeAgency").collection("services");
@@ -45,6 +45,16 @@ client.connect(err => {
         })
     })
 
+
+    //all customer order in admin
+    app.get('/allOrders', (req, res) => {
+        orderCollection.find({})
+        .toArray( (err, documents) => {
+            res.send(documents);
+        })
+
+    })
+
     //customer feedback
     app.post('/feedback', (req, res) => {
         const feedbacks = req.body;
@@ -52,6 +62,16 @@ client.connect(err => {
         .then(result => {
             res.send(result.insertedCount > 0)
         })
+    })
+
+
+    //get client feedback
+    app.get('/getFeedbacks', (req, res) => {
+        feedbackCollection.find({})
+        .toArray( (err, documents) => {
+            res.send(documents);
+        })
+
     })
 
     //order list 
@@ -91,6 +111,23 @@ client.connect(err => {
         })
     })
 
+    //make admin 
+    app.post('/makeAdmin', (req, res) => {
+        const admins = req.body;
+        adminCollection.insertOne(admins)
+        .then(result => {
+            res.send(result.insertedCount > 0)
+        })
+    })
+
+    //get admin
+    app.get('/getAdmin', (req, res) => {
+        adminCollection.find({email: req.query.email})
+        console.log(req.query.email)
+        .toArray( (err, documents) => {
+            res.send(documents);
+        })
+    })
 
     //end
 });
